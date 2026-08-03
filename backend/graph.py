@@ -12,6 +12,7 @@ from csv_tools import CSVManager
 # Shared state between agents
 class AgentState(TypedDict):
     messages: Annotated[List, add_messages]
+    chat_history: str
     query: str
     rag_context: str
     csv_context: str
@@ -22,9 +23,9 @@ rag = DocumentRAG()
 csv_manager = CSVManager()
  
 
-print("MODEL:", os.getenv("OLLAMA_MODEL"))
-print("KEY EXISTS:", bool(os.getenv("OLLAMA_API_KEY")))
-print("BASE URL:", "https://ollama.com") 
+# print("MODEL:", os.getenv("OLLAMA_MODEL"))
+# print("KEY EXISTS:", bool(os.getenv("OLLAMA_API_KEY")))
+# print("BASE URL:", "https://ollama.com") 
 # LLM (Ollama Cloud)
 llm = ChatOllama(
     model=os.getenv("OLLAMA_MODEL", "llama3.2"),
@@ -90,6 +91,46 @@ Write a clear and well-structured final answer."""
     }
  
  
+def synthesizer_node(state: AgentState):
+    """Creates the final answer"""
+
+    history = state.get(
+        "chat_history",
+        ""
+    )
+
+    prompt = f"""
+You are a helpful research assistant.
+
+Conversation History:
+{history}
+
+Current User Question:
+{state['query']}
+
+--- Document Context ---
+{state.get('rag_context', 'No documents uploaded')}
+
+--- CSV / Dataset Context ---
+{state.get('csv_context', 'No CSV uploaded')}
+
+Instructions:
+- Use conversation history when relevant.
+- Use document and CSV context when available.
+- If the user refers to something mentioned earlier, use the conversation history.
+- Write a clear, accurate, and well-structured answer.
+"""
+
+    response = llm.invoke(
+        [HumanMessage(content=prompt)]
+    )
+
+    return {
+        "final_answer": response.content,
+        "messages": [response.content]
+    }
+
+
 # ========== Build the Graph ==========
  
 workflow = StateGraph(AgentState)

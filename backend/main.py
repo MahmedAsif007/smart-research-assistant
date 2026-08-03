@@ -24,7 +24,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
  
- 
+conversation_history = []
+
 class ChatRequest(BaseModel):
     message: str
  
@@ -67,18 +68,57 @@ async def upload_csv(file: UploadFile = File(...)):
     }
  
  
+# @app.post("/chat")
+# async def chat(req: ChatRequest):
+#     result = graph.invoke({
+#         "query": req.message,
+#         "messages": [],
+#         "rag_context": "",
+#         "csv_context": "",
+#         "final_answer": ""
+#     })
+   
+#     result = graph.invoke({
+#         "query": req.message,
+#         "messages": conversation_history,
+#         "rag_context": "",
+#         "csv_context": "",
+#         "final_answer": ""
+#     })
+ 
+#     return {
+#         "answer": result.get("final_answer", "No answer generated"),
+#         "rag_used": bool(result.get("rag_context")),
+#         "csv_used": bool(result.get("csv_context"))
+#     }
+
 @app.post("/chat")
 async def chat(req: ChatRequest):
+
+    conversation_history.append(
+        f"User: {req.message}"
+    )
+    history_text = "\n".join(conversation_history)
     result = graph.invoke({
         "query": req.message,
+        "chat_history": history_text,
         "messages": [],
         "rag_context": "",
         "csv_context": "",
         "final_answer": ""
     })
- 
+
+    answer = result.get(
+        "final_answer",
+        "No answer generated"
+    )
+
+    conversation_history.append(
+        f"Assistant: {answer}"
+    )
+
     return {
-        "answer": result.get("final_answer", "No answer generated"),
+        "answer": answer,
         "rag_used": bool(result.get("rag_context")),
         "csv_used": bool(result.get("csv_context"))
     }
