@@ -1,0 +1,36 @@
+# Angular
+node_modules/
+.angular/
+dist/
+coverage/
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Chroma DB
+chroma/
+.chroma/
+chromadb/
+
+# Temporary
+temp/
+tmp/
+
+# Build artifacts
+build/

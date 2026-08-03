@@ -1,0 +1,12 @@
+<button
+  [disabled]="loading() || disabled()"
+  [class.secondary]="variant() === 'secondary'"
+  (click)="clicked.emit()"
+>
+  @if (loading()) {
+    <span class="spinner"></span>
+    Processing...
+  } @else {
+    {{ label() }}
+  }
+</button>

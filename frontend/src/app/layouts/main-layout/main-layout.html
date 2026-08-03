@@ -1,0 +1,178 @@
+<div class="app-shell">
+
+  <header class="header">
+    <div class="logo-section">
+      <div class="logo">
+        AI
+      </div>
+
+      <div>
+        <h1>Smart Research Assistant</h1>
+        <span>LangGraph • RAG • MCP • Ollama</span>
+      </div>
+    </div>
+
+    <div class="status">
+      <span class="status-dot"></span>
+      Backend Connected
+    </div>
+  </header>
+
+  <main class="content">
+
+    <aside class="sidebar">
+
+      <div class="card">
+
+        <h3>Documents</h3>
+
+        <input
+          #pdfInput
+          hidden
+          type="file"
+          accept=".pdf,.txt"
+          (change)="onPdfSelected($event)"
+        />
+
+        <input
+          #csvInput
+          hidden
+          type="file"
+          accept=".csv"
+          (change)="onCsvSelected($event)"
+        />
+
+        <app-button
+          label="Upload PDF / TXT"
+          [loading]="uploadingPdf()"
+          (clicked)="openPdfUpload()"
+        >
+        </app-button>
+
+        <br />
+
+        <app-button
+          label="Upload CSV"
+          [loading]="uploadingCsv()"
+          variant="secondary"
+          (clicked)="openCsvUpload()"
+        >
+        </app-button>
+
+        @if (uploadedPdfName()) {
+          <div class="file-name">
+            📄 {{ uploadedPdfName() }}
+          </div>
+        }
+
+        @if (uploadedCsvName()) {
+          <div class="file-name">
+            📊 {{ uploadedCsvName() }}
+          </div>
+        }
+
+        @if (csvUploadMessage()) {
+          <div class="success-message">
+          ✅ {{ csvUploadMessage() }}
+          </div>
+          }
+
+      </div>
+
+
+      <div class="card">
+        <h3>System</h3>
+
+        <div class="info-item">
+          <span>Status</span>
+          <strong>
+            {{ backendStatus() }}
+          </strong>
+        </div>
+
+        <div class="info-item">
+          <span>Model</span>
+          <strong>
+            {{ model() }}
+          </strong>
+        </div>
+
+      </div>
+
+    </aside>
+
+    <section class="chat-panel">
+
+      <div class="chat-header">
+
+        <span>
+          Conversation
+        </span>
+
+        <button
+          class="clear-btn"
+          (click)="clearChat()"
+        >
+          Clear Chat
+        </button>
+
+      </div>
+
+      <div class="chat-body">
+          @for (
+            message of messages();
+            track $index
+          ) {
+            <div
+                class="message"
+                [class.user]="message.role === 'user'"
+                [class.assistant]="message.role === 'assistant'"
+              >
+                @if (message.content === '__thinking__') {
+
+                  <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+
+                } @else {
+
+                  {{ message.content }}
+
+                }
+              </div>
+
+          }
+
+      </div>
+
+      <div class="chat-input">
+
+        <input
+          type="text"
+          placeholder="Ask anything..."
+          [(ngModel)]="message"
+          (keyup.enter)="sendMessage()"
+        />
+
+        <button
+          class="send-btn"
+          [disabled]="sending()"
+          (click)="sendMessage()"
+        >
+          @if (sending()) {
+            Sending...
+          } @else {
+            Send
+          }
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+``
