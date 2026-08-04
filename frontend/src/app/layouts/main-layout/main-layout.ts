@@ -42,6 +42,9 @@ export class MainLayout implements OnInit {
   @ViewChild('csvInput')
   csvInput!: ElementRef<HTMLInputElement>;
 
+  @ViewChild('chatBody')
+  chatBody!: ElementRef<HTMLDivElement>;
+
   uploadingPdf = signal(false);
 
   uploadingCsv = signal(false);
@@ -91,7 +94,7 @@ export class MainLayout implements OnInit {
         content: text
       }
     ]);
-
+    this.scrollToBottom();
     this.sending.set(true);
 
     this.messages.update(messages => [
@@ -101,6 +104,7 @@ export class MainLayout implements OnInit {
           content: '__thinking__'
         }
       ]);
+    this.scrollToBottom();
 
     this.api
       .chat(text)
@@ -126,7 +130,7 @@ export class MainLayout implements OnInit {
 
           return updated;
         });
-
+          this.scrollToBottom();
           this.sending.set(false);
         },
 
@@ -146,13 +150,13 @@ export class MainLayout implements OnInit {
         const updated = [...messages];
 
         updated[updated.length - 1] = {
-          role: 'assistant',
-          content: 'Sorry, something went wrong while processing your request.'
-        };
+            role: 'assistant',
+            content: 'Sorry, something went wrong while processing your request.'
+          };
 
-        return updated;
-      });
-
+          return updated;
+        });
+          this.scrollToBottom();
           this.sending.set(false);
         }
       });
@@ -248,13 +252,32 @@ export class MainLayout implements OnInit {
 
   clearChat(): void {
 
-  this.messages.set([
-    {
-      role: 'assistant',
-      content: 'Hello! How can I help you today?'
-    }
-  ]);
+    this.messages.set([
+      {
+        role: 'assistant',
+        content: 'Hello! How can I help you today?'
+      }
+    ]);
 
-}
+  }
+
+  private scrollToBottom(): void {
+
+    setTimeout(() => {
+
+      if (!this.chatBody) {
+        return;
+      }
+
+      const element = this.chatBody.nativeElement;
+
+      element.scrollTo({
+        top: element.scrollHeight,
+        behavior: 'smooth'
+      });
+
+    }, 100);
+
+  }
 
 }
